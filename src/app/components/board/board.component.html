@@ -1,0 +1,18 @@
+<div class="board">
+  <div class="card">
+    <h1>Minesweeper</h1>
+  </div>
+  <ng-container *ngIf="(boardSize$ | async)">
+    <table class="board_body">
+      <ng-container *ngFor="let rowData of (boardData$ | async); let i = index">
+        <tr>
+          <td *ngFor="let colData of rowData; let j = index">
+            <app-cell [row]="i" [col]="j"
+                      [cellData]="colData"
+            ></app-cell>
+          </td>
+        </tr>
+      </ng-container>
+    </table>
+  </ng-container>
+</div>

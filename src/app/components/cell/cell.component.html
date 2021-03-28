@@ -1,0 +1,17 @@
+<button class="cell"
+        [class.opened]="cellData.status === CellStatus.OPENED"
+        (click)="updateStatus()"
+        (contextmenu)="$event.preventDefault(); flagTheCell()"
+>
+  <ng-container [ngSwitch]="cellData.status">
+    <ng-container *ngSwitchCase="CellStatus.OPENED">
+      <span *ngIf="cellData.hasMine">
+        <img class="cell_icon" src="assets/icons/mine.jpg">
+      </span>
+      <span *ngIf="!cellData.hasMine">{{cellData.nearMines}}</span>
+    </ng-container>
+    <span class="cell_icon" *ngSwitchCase="CellStatus.FLAGGED">
+      <img class="cell_icon-flag" src="assets/icons/red-bookmark.jpg">
+    </span>
+  </ng-container>
+</button>
