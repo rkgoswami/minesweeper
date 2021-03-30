@@ -10,3 +10,5 @@ export const selectBoardData = createSelector(gamePlayState, (state: GamePlaySta
 export const selectGameLevel = createSelector(gamePlayState, (state: GamePlayState) => state.level);
 
 export const selectBoardSize = createSelector(gamePlayState, (state: GamePlayState) => state.boardSize);
+
+export const selectGameStatus = createSelector(gamePlayState, (state: GamePlayState) => state.gameStatus);

@@ -38,6 +38,13 @@ export function gamePlayReducer(state: GamePlayState = initialGamePlayState,
       };
     }
 
+    case GamePlayActionTypes.SetFlagToCell: {
+      return {
+        ...state,
+        cellData: GameUtils.updateCell(state.cellData, action.cell, true)
+      };
+    }
+
     case GamePlayActionTypes.ResetBoard: {
       const newState = GameUtils.getInitialBoardConfiguration(state.level);
       return {

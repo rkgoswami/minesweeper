@@ -9,7 +9,7 @@ export interface GamePlayState {
   boardSize: { row: number, col: number };
   mineCount: number;
   gameStatus: GameStatusEnum;
-  score: number;
+  hiddenCellsCount: number;
 }
 
 export const initialGamePlayState: GamePlayState = {
@@ -19,7 +19,7 @@ export const initialGamePlayState: GamePlayState = {
   boardSize: null,
   mineCount: 0,
   gameStatus: null,
-  score: 0
+  hiddenCellsCount: 0
 };
 
 export namespace GamePlay {

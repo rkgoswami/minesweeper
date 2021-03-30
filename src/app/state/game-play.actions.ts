@@ -2,12 +2,14 @@ import {Action} from '@ngrx/store';
 import {GamePlay} from './game-play.state';
 import {CellData} from '../model/cell-data.model';
 import LevelEnum = GamePlay.LevelEnum;
+import GameStatusEnum = GamePlay.GameStatusEnum;
 
 export enum GamePlayActionTypes {
   CreateGameBoard = '[GamePlay] Create Game Board',
   CreateGameBoardSuccess = '[GamePlay] Create Game Board Success',
   UpdateBoard = '[GamePlay] Update Board',
-  UpdateBoardSuccess = '[GamePlay] Update Board Success',
+  SetFlagToCell = '[GamePlay] Set Flag to cell',
+  UpdateGameStatus = '[GamePlay] Update Game Status',
   ResetBoard = '[GamePlay] Reset the board'
 }
 
@@ -32,8 +34,18 @@ export class UpdateBoard implements Action {
   }
 }
 
-export class UpdateBoardSuccess implements Action {
-  readonly type = GamePlayActionTypes.UpdateBoardSuccess;
+export class SetFlagToCell implements Action {
+  readonly type = GamePlayActionTypes.SetFlagToCell;
+
+  constructor(public cell: CellData) {
+  }
+}
+
+export class UpdateGameStatus implements Action {
+  readonly type = GamePlayActionTypes.UpdateGameStatus;
+
+  constructor(public config: {status: GameStatusEnum, hiddenCells: number}) {
+  }
 }
 
 export class ResetBoard implements Action {
@@ -43,7 +55,8 @@ export class ResetBoard implements Action {
 export type GamePlayActions = CreateGameBoard
   | CreateGameBoardSuccess
   | UpdateBoard
-  | UpdateBoardSuccess
+  | SetFlagToCell
+  | UpdateGameStatus
   | ResetBoard;
 
 

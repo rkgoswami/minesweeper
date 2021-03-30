@@ -2,6 +2,8 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {GamePlayService} from "../../state/game-play.service";
 import {FormBuilder, FormGroup} from "@angular/forms";
 import {Subscription} from "rxjs";
+import {GamePlay} from "../../state/game-play.state";
+import GameStatusEnum = GamePlay.GameStatusEnum;
 
 @Component({
   selector: 'app-game',
@@ -27,9 +29,16 @@ export class GameComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.levelForm.controls.level.valueChanges
         .subscribe((newLevel) => {
-          console.log('Form Change: ', newLevel);
           this.gamePlayService.initGameBoard(newLevel);
         })
+    );
+    this.gamePlayService.selectGameStatus$().subscribe(
+      (status: GameStatusEnum) => {
+        if (status === GameStatusEnum.LOST || status === GameStatusEnum.WON) {
+          const greeting = status === GameStatusEnum.WON ? 'Congrats, ' : 'Sorry, ';
+          setTimeout(() => alert(greeting + "You have " + status + " the game."), 1000);
+        }
+      }
     );
   }
 

@@ -23,7 +23,7 @@ export class CellComponent implements OnInit {
 
   updateStatus(): void {
     // call service to update status of cell
-    if (this.cellData.status === StatusEnum.HIDDEN) {
+    if (this.cellData.status === StatusEnum.HIDDEN || this.cellData.status === StatusEnum.FLAGGED) {
       this.gamePlayService.updateCellStatus({
         ...this.cellData,
         status: StatusEnum.OPENED
@@ -32,8 +32,8 @@ export class CellComponent implements OnInit {
   }
 
   flagTheCell(): void {
-    if (this.cellData.status !== StatusEnum.OPENED) {
-      this.gamePlayService.updateCellStatus({
+    if (this.cellData.status === StatusEnum.HIDDEN || this.cellData.status !== StatusEnum.FLAGGED) {
+      this.gamePlayService.setFlagToCell({
         ...this.cellData,
         status: StatusEnum.FLAGGED
       });

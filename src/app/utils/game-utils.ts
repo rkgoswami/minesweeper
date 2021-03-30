@@ -65,7 +65,6 @@ export class GameUtils {
           row,
           col
         };
-
         // update the neighbours
         GameUtils.updateNeighboursWithMinesCount(cellDataList, rowLength, colLength, row, col);
       }
@@ -73,17 +72,13 @@ export class GameUtils {
     }
 
 
-    // calculate the neighbour mines
-    // GameUtils.countNeighbourMines(cellData);
-    console.log('Inside getInitialBoardConfiguration: ', cellDataList);
-
     return {
       cellData: [...cellDataList],
       level,
       boardSize: {row: rowLength, col: colLength},
       mineCount: mines,
       gameStatus: GameStatusEnum.NOT_STARTED,
-      score: 0
+      hiddenCellsCount: (rowLength * colLength) - mines
     };
   }
 
@@ -106,6 +101,7 @@ export class GameUtils {
   }
 
   public static floodNearbyCells(cellData: CellData[][], targetCell: CellData): void {
+
     for (let x = -1; x <= 1; x++) {
       const row = targetCell.row + x;
       if (row < 0 || row >= cellData.length) {
@@ -150,8 +146,11 @@ export class GameUtils {
   }
 
 
-  public static updateCell(cellData: CellData[][], targetCell: CellData): CellData[][] {
+  public static updateCell(cellData: CellData[][], targetCell: CellData, flag?: boolean): CellData[][] {
     const newCellData = GameUtils.updateSpecificCell(cellData, targetCell);
+    if (flag) {
+      return newCellData;
+    }
     if (targetCell.nearMines === 0) {
       const floodedCellData = GameUtils.clone2DArray(newCellData);
       GameUtils.floodNearbyCells(floodedCellData, targetCell);
@@ -180,6 +179,18 @@ export class GameUtils {
         };
       });
     });
+  }
+
+  public static handleGameStatus(cellData: CellData[][]): { status: GameStatusEnum, hiddenCells: number } {
+    const hiddenCells = cellData.map((subArray: CellData[]) =>
+      subArray.reduce((accumulator: number, currentValue: CellData) =>
+        currentValue.status !== StatusEnum.OPENED ? accumulator + 1 : accumulator, 0))
+      .reduce((accumulator: number, currentValue: number) => accumulator + currentValue);
+
+    if (hiddenCells === 0) {
+      return {hiddenCells, status: GameStatusEnum.WON};
+    }
+    return {hiddenCells, status: GameStatusEnum.IN_PROGRESS};
   }
 
 }

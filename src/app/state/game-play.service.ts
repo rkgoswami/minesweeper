@@ -1,12 +1,19 @@
 import {Injectable} from "@angular/core";
 import {Store} from "@ngrx/store";
-import {selectBoardData, selectBoardSize, selectGameLevel, selectIsLoading} from "./game-play.selectors";
+import {
+  selectBoardData,
+  selectBoardSize,
+  selectGameLevel,
+  selectGameStatus,
+  selectIsLoading
+} from "./game-play.selectors";
 import {Observable, of} from "rxjs";
 import {GamePlay} from "./game-play.state";
-import {CreateGameBoard, ResetBoard, UpdateBoard} from "./game-play.actions";
+import {CreateGameBoard, ResetBoard, SetFlagToCell, UpdateBoard} from "./game-play.actions";
 import {GameUtils} from "../utils/game-utils";
 import {CellData} from "../model/cell-data.model";
 import LevelEnum = GamePlay.LevelEnum;
+import GameStatusEnum = GamePlay.GameStatusEnum;
 
 // @ts-ignore
 @Injectable({
@@ -31,6 +38,10 @@ export class GamePlayService {
     return this.store.select(selectGameLevel);
   }
 
+  selectGameStatus$(): Observable<GameStatusEnum> {
+    return this.store.select(selectGameStatus);
+  }
+
   selectBoardData$(): Observable<CellData[][]> {
     return this.store.select(selectBoardData);
   }
@@ -43,6 +54,10 @@ export class GamePlayService {
 
   updateCellStatus(cell: CellData) {
     this.store.dispatch(new UpdateBoard(cell))
+  }
+
+  setFlagToCell(cell: CellData) {
+    this.store.dispatch(new SetFlagToCell(cell))
   }
 
   resetBoard() {
