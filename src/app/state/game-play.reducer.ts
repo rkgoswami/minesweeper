@@ -1,8 +1,6 @@
-import {GamePlayState, initialGamePlayState} from "./game-play.state";
-import {GamePlayActions, GamePlayActionTypes} from "./game-play.actions";
-import {GameUtils} from "../utils/game-utils";
-import {CellData} from "../model/cell-data.model";
-import StatusEnum = CellData.StatusEnum;
+import {GamePlayState, initialGamePlayState} from './game-play.state';
+import {GamePlayActions, GamePlayActionTypes} from './game-play.actions';
+import {GameUtils} from '../utils/game-utils';
 
 export function gamePlayReducer(state: GamePlayState = initialGamePlayState,
                                 action: GamePlayActions): GamePlayState {
@@ -11,33 +9,41 @@ export function gamePlayReducer(state: GamePlayState = initialGamePlayState,
     case GamePlayActionTypes.CreateGameBoard: {
       return {
         ...state,
-        ...action.config,
         isLoading: true
-      }
+      };
     }
 
     case GamePlayActionTypes.CreateGameBoardSuccess: {
-      return {...state, isLoading: false}
+      return {
+        ...state,
+        ...action.config,
+        gameStatus: 'IN_PROGRESS',
+        isLoading: false
+      };
     }
 
     case GamePlayActionTypes.UpdateBoard: {
+
+      if (action.cell.hasMine) {
+        // game over
+        return {
+          ...state,
+          gameStatus: 'LOST',
+          cellData: GameUtils.showAllCell(state.cellData)
+        };
+      }
       return {
         ...state,
-        cellData: state.cellData.map((subArray: CellData[], rowIndex: number) => {
-          if (action.cellPosition.row === rowIndex) {
-            return subArray.map((cellData: CellData, colIndex: number) => {
-              if (action.cellPosition.col === colIndex) {
-                return {
-                  ...cellData,
-                  status: action.cellStatus
-                };
-              }
-              return cellData;
-            })
-          }
-          return subArray;
-        })
-      }
+        cellData: GameUtils.updateCell(state.cellData, action.cell)
+      };
+    }
+
+    case GamePlayActionTypes.ResetBoard: {
+      const newState = GameUtils.getInitialBoardConfiguration(state.level);
+      return {
+        ...state,
+        ...newState
+      };
     }
 
     default:

@@ -1,5 +1,5 @@
-import {createFeatureSelector, createSelector} from "@ngrx/store";
-import {GamePlayState} from "./game-play.state";
+import {createFeatureSelector, createSelector} from '@ngrx/store';
+import {GamePlayState} from './game-play.state';
 
 export const gamePlayState = createFeatureSelector<GamePlayState>('game-play');
 

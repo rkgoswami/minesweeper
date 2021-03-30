@@ -1,13 +1,15 @@
 <button class="cell"
+        [disabled]="cellData.status === CellStatus.OPENED"
         [class.opened]="cellData.status === CellStatus.OPENED"
+        [class.bombed]="cellData.status === CellStatus.OPENED && cellData.hasMine"
         (click)="updateStatus()"
         (contextmenu)="$event.preventDefault(); flagTheCell()"
 >
   <ng-container [ngSwitch]="cellData.status">
     <ng-container *ngSwitchCase="CellStatus.OPENED">
-      <span *ngIf="cellData.hasMine">
+      <ng-container *ngIf="cellData.nearMines < 0">
         <img class="cell_icon" src="assets/icons/mine.jpg">
-      </span>
+      </ng-container>
       <span *ngIf="!cellData.hasMine">{{cellData.nearMines}}</span>
     </ng-container>
     <span class="cell_icon" *ngSwitchCase="CellStatus.FLAGGED">

@@ -1,4 +1,4 @@
-import {CellData} from "../model/cell-data.model";
+import {CellData} from '../model/cell-data.model';
 import LevelEnum = GamePlay.LevelEnum;
 import GameStatusEnum = GamePlay.GameStatusEnum;
 
@@ -20,7 +20,7 @@ export const initialGamePlayState: GamePlayState = {
   mineCount: 0,
   gameStatus: null,
   score: 0
-}
+};
 
 export namespace GamePlay {
   export type LevelEnum = 'BEGINNER' | 'INTERMEDIATE' | 'EXPERT';

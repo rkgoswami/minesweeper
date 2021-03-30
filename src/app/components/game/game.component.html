@@ -1,1 +1,20 @@
-<app-board></app-board>
+<div class="game">
+  <div class="game_menu">
+    <h3 class="game_menu-title">Game Menu</h3>
+    <div>
+      <form [formGroup]="levelForm">
+        <label for="level">Game Level </label>
+        <select id="level" formControlName="level">
+          <option *ngFor="let level of levels">{{level}}</option>
+        </select>
+      </form>
+    </div>
+    <br>
+    <button (click)="resetBoard()">Reset Board</button>
+  </div>
+  <div class="game_board">
+    <app-board></app-board>
+  </div>
+</div>
+
+

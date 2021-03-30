@@ -1,8 +1,7 @@
-import {Action} from "@ngrx/store";
-import {GamePlay} from "./game-play.state";
+import {Action} from '@ngrx/store';
+import {GamePlay} from './game-play.state';
+import {CellData} from '../model/cell-data.model';
 import LevelEnum = GamePlay.LevelEnum;
-import {CellData} from "../model/cell-data.model";
-import StatusEnum = CellData.StatusEnum;
 
 export enum GamePlayActionTypes {
   CreateGameBoard = '[GamePlay] Create Game Board',
@@ -15,18 +14,21 @@ export enum GamePlayActionTypes {
 export class CreateGameBoard implements Action {
   readonly type = GamePlayActionTypes.CreateGameBoard;
 
-  constructor(public config: any) {
+  constructor(public level: LevelEnum) {
   }
 }
 
 export class CreateGameBoardSuccess implements Action {
   readonly type = GamePlayActionTypes.CreateGameBoardSuccess;
+
+  constructor(public config: any) {
+  }
 }
 
 export class UpdateBoard implements Action {
   readonly type = GamePlayActionTypes.UpdateBoard;
 
-  constructor(public cellPosition: {row: number, col: number}, public cellStatus?: StatusEnum) {
+  constructor(public cell: CellData) {
   }
 }
 

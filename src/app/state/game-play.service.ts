@@ -1,13 +1,12 @@
 import {Injectable} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {selectBoardData, selectBoardSize, selectGameLevel, selectIsLoading} from "./game-play.selectors";
-import {Observable} from "rxjs";
+import {Observable, of} from "rxjs";
 import {GamePlay} from "./game-play.state";
-import {CreateGameBoard, UpdateBoard} from "./game-play.actions";
+import {CreateGameBoard, ResetBoard, UpdateBoard} from "./game-play.actions";
 import {GameUtils} from "../utils/game-utils";
 import {CellData} from "../model/cell-data.model";
 import LevelEnum = GamePlay.LevelEnum;
-import StatusEnum = CellData.StatusEnum;
 
 // @ts-ignore
 @Injectable({
@@ -24,7 +23,7 @@ export class GamePlayService {
     return this.store.select(selectIsLoading);
   }
 
-  selectBoardSize$(): Observable<{row: number, col: number}> {
+  selectBoardSize$(): Observable<{ row: number, col: number }> {
     return this.store.select(selectBoardSize);
   }
 
@@ -38,11 +37,21 @@ export class GamePlayService {
 
   /* DISPATCHERS */
 
-  initGameBoard$(): void {
-    this.store.dispatch(new CreateGameBoard(GameUtils.getInitialBoardConfiguration(LevelEnum.BEGINNER)));
+  initGameBoard(level: LevelEnum = LevelEnum.BEGINNER): void {
+    this.store.dispatch(new CreateGameBoard(level));
   }
 
-  updateCellStatus$(row: number, col: number, status?: StatusEnum) {
-    this.store.dispatch(new UpdateBoard({row, col}, status))
+  updateCellStatus(cell: CellData) {
+    this.store.dispatch(new UpdateBoard(cell))
   }
+
+  resetBoard() {
+    this.store.dispatch(new ResetBoard())
+  }
+
+  createGameBoard(level): Observable<any> {
+    const gameConfig = GameUtils.getInitialBoardConfiguration(level);
+    return of(gameConfig);
+  }
+
 }

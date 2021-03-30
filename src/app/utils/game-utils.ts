@@ -1,59 +1,58 @@
-import {GamePlay} from "../state/game-play.state";
-import {CellData} from "../model/cell-data.model";
+import {GamePlay} from '../state/game-play.state';
+import {CellData, StatusEnum} from '../model/cell-data.model';
 import LevelEnum = GamePlay.LevelEnum;
-import StatusEnum = CellData.StatusEnum;
 import GameStatusEnum = GamePlay.GameStatusEnum;
 
 export class GameUtils {
 
   static readonly boardSizeToLevelMap = {
-    'BEGINNER': {rowLength: 9, colLength: 9, mines: 10},
-    'INTERMEDIATE': {rowLength: 16, colLength: 16, mines: 40},
-    'EXPERT': {rowLength: 16, colLength: 30, mines: 99}
-  }
+    BEGINNER: {rowLength: 9, colLength: 9, mines: 10},
+    INTERMEDIATE: {rowLength: 16, colLength: 16, mines: 40},
+    EXPERT: {rowLength: 16, colLength: 30, mines: 99}
+  };
 
   static peerPosition = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
 
-  public static getBoardSizeBasesOnLevel(level: LevelEnum) {
+  public static getBoardSizeBasesOnLevel(level: LevelEnum): any {
     return GameUtils.boardSizeToLevelMap[level];
   }
 
-  public static get2DCellData(row, col) {
+  public static get2DCellData(rowSize: number, colSize: number): CellData[][] {
     // @ts-ignore
-    let arr = new Array(row);
-    for (let i = 0; i < row; ++i) {
-      arr[i] = new Array(col);
+    const arr = new Array(rowSize);
+    for (let i = 0; i < rowSize; ++i) {
+      arr[i] = new Array(colSize);
     }
 
-    for (let i = 0; i < row; ++i) {
-      for (let j = 0; j < col; ++j) {
+    for (let i = 0; i < rowSize; ++i) {
+      for (let j = 0; j < colSize; ++j) {
         arr[i][j] = {
           status: StatusEnum.HIDDEN,
-          value: "(" + i+ "," + j + ")",
           nearMines: 0,
-          hasMine: false
-        }
+          hasMine: false,
+          row: i,
+          col: j
+        };
       }
     }
     return arr;
   }
 
   private static getRandomCell(rowLength: number, colLength: number): { row: number, col: number } {
-    let row = Math.floor(Math.random() * rowLength);
-    let col = Math.floor(Math.random() * colLength);
-    console.log(row, col);
+    const row = Math.floor(Math.random() * rowLength);
+    const col = Math.floor(Math.random() * colLength);
     return {row, col};
   }
 
 
   public static getInitialBoardConfiguration(level: LevelEnum) {
-    const {rowLength, colLength, mines} = GameUtils.getBoardSizeBasesOnLevel(level);
+    const {rowLength, colLength, mines} = GameUtils.boardSizeToLevelMap[level];
     // create the board
     const cellDataList = GameUtils.get2DCellData(rowLength, colLength);
 
     // Assign mine to it
     for (let i = 0; i < mines; ++i) {
-      let {row, col} = GameUtils.getRandomCell(rowLength, colLength);
+      const {row, col} = GameUtils.getRandomCell(rowLength, colLength);
 
       // check if random function doesn't select the same position
       if (cellDataList[row][col].hasMine) {
@@ -62,7 +61,9 @@ export class GameUtils {
         cellDataList[row][col] = {
           status: StatusEnum.HIDDEN,
           nearMines: -1,
-          hasMine: true
+          hasMine: true,
+          row,
+          col
         };
 
         // update the neighbours
@@ -73,45 +74,112 @@ export class GameUtils {
 
 
     // calculate the neighbour mines
-    //GameUtils.countNeighbourMines(cellData);
+    // GameUtils.countNeighbourMines(cellData);
     console.log('Inside getInitialBoardConfiguration: ', cellDataList);
 
     return {
       cellData: [...cellDataList],
-      level: level,
-      boardSize: {rowLength, colLength},
+      level,
+      boardSize: {row: rowLength, col: colLength},
       mineCount: mines,
       gameStatus: GameStatusEnum.NOT_STARTED,
       score: 0
     };
   }
 
-  private static updateNeighboursWithMinesCount(cellDataList: CellData[][], rowLength, colLength, curRow, curCol) {
+  private static updateNeighboursWithMinesCount(cellDataList: CellData[][], rowLength: number,
+                                                colLength: number, curRow: number, curCol: number): void {
 
     const neighbours = GameUtils.peerPosition;
-    console.log('Neb: ', neighbours);
-
     for (let i = 0; i < neighbours.length; ++i) {
-      let r = curRow + neighbours[i][0];
-      let c = curCol + neighbours[i][1];
-
-      console.log('(r,c): ', r, c);
-      console.log('(curR,curC): ', curRow, curCol);
+      const r = curRow + neighbours[i][0];
+      const c = curCol + neighbours[i][1];
 
       // check boundary for overflow
-      if ((r >= 0 && r < rowLength) &&
-        (c >= 0 && c < colLength) && !cellDataList[r][c].hasMine) {
+      if ((r >= 0 && r < rowLength) && (c >= 0 && c < colLength) && !cellDataList[r][c].hasMine) {
         cellDataList[r][c] = {
           ...cellDataList[r][c],
           nearMines: cellDataList[r][c].nearMines + 1
-        }
-        console.log('updated cell: ', cellDataList[r][c]);
+        };
       }
     }
-    console.log(cellDataList);
   }
 
-  public static showCell() {
-    //if ()
+  public static floodNearbyCells(cellData: CellData[][], targetCell: CellData): void {
+    for (let x = -1; x <= 1; x++) {
+      const row = targetCell.row + x;
+      if (row < 0 || row >= cellData.length) {
+        continue;
+      }
+
+      for (let y = -1; y <= 1; y++) {
+        const col = targetCell.col + y;
+        if (col < 0 || col >= cellData[targetCell.row].length) {
+          continue;
+        }
+
+        if (cellData[row][col].status !== StatusEnum.OPENED) {
+          cellData[row][col] = {
+            ...cellData[row][col],
+            status: StatusEnum.OPENED
+          };
+          if (cellData[row][col].nearMines === 0) {
+            GameUtils.floodNearbyCells(cellData, cellData[row][col]);
+          }
+        }
+      }
+    }
   }
+
+  public static updateSpecificCell(cellData: CellData[][], targetCell: CellData): CellData[][] {
+    return cellData.map((subArray: CellData[], rowIndex: number) => {
+      if (targetCell.row === rowIndex) {
+        return subArray.map((cell: CellData, colIndex: number) => {
+          if (targetCell.col === colIndex) {
+            return {
+              ...cell,
+              status: targetCell.status
+            };
+          }
+          return cell;
+        });
+      }
+      return subArray;
+    });
+
+  }
+
+
+  public static updateCell(cellData: CellData[][], targetCell: CellData): CellData[][] {
+    const newCellData = GameUtils.updateSpecificCell(cellData, targetCell);
+    if (targetCell.nearMines === 0) {
+      const floodedCellData = GameUtils.clone2DArray(newCellData);
+      GameUtils.floodNearbyCells(floodedCellData, targetCell);
+      return floodedCellData;
+    }
+    return newCellData;
+  }
+
+
+  public static clone2DArray(old2DArray: any[][]): any {
+    return old2DArray.map((subArray: any[]) => {
+      return subArray.map((data: any) => {
+        return {
+          ...data
+        };
+      });
+    });
+  }
+
+  public static showAllCell(cellData: CellData[][]): CellData[][] {
+    return cellData.map((subArray: CellData[]) => {
+      return subArray.map((cell: CellData) => {
+        return {
+          ...cell,
+          status: StatusEnum.OPENED
+        };
+      });
+    });
+  }
+
 }
